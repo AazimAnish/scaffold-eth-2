@@ -1,5 +1,6 @@
 import { ChangeEvent, FocusEvent, ReactNode, useCallback, useEffect, useRef } from "react";
 import { CommonInputProps } from "~~/components/scaffold-eth";
+import { cn } from "~~/lib/utils";
 
 type InputBaseProps<T> = CommonInputProps<T> & {
   error?: boolean;
@@ -19,14 +20,7 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
   suffix,
   reFocus,
 }: InputBaseProps<T>) => {
-  const inputReft = useRef<HTMLInputElement>(null);
-
-  let modifier = "";
-  if (error) {
-    modifier = "border-error";
-  } else if (disabled) {
-    modifier = "border-disabled bg-base-300";
-  }
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -42,22 +36,35 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
       e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length);
     }
   };
+
   useEffect(() => {
-    if (reFocus !== undefined && reFocus === true) inputReft.current?.focus();
+    if (reFocus !== undefined && reFocus === true) inputRef.current?.focus();
   }, [reFocus]);
 
   return (
-    <div className={`flex border-2 border-base-300 bg-base-200 rounded-full text-accent ${modifier}`}>
+    <div
+      className={cn(
+        "flex items-center border rounded-md bg-background text-foreground transition-colors",
+        "focus-within:ring-2 focus-within:ring-ring focus-within:border-ring",
+        error && "border-destructive focus-within:ring-destructive/20",
+        disabled && "opacity-50 cursor-not-allowed",
+      )}
+    >
       {prefix}
       <input
-        className="input input-ghost focus-within:border-transparent focus:outline-hidden focus:bg-transparent h-[2.2rem] min-h-[2.2rem] px-4 border w-full font-medium placeholder:text-accent/70 text-base-content/70 focus:text-base-content/70"
+        className={cn(
+          "flex h-10 w-full rounded-md border-0 bg-transparent px-3 py-2 text-sm",
+          "placeholder:text-muted-foreground",
+          "focus:outline-none focus:ring-0",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+        )}
         placeholder={placeholder}
         name={name}
         value={value?.toString()}
         onChange={handleChange}
         disabled={disabled}
         autoComplete="off"
-        ref={inputReft}
+        ref={inputRef}
         onFocus={onFocus}
       />
       {suffix}

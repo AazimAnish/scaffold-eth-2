@@ -1,6 +1,9 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ContractInput } from "./ContractInput";
 import { getFunctionInputKey, getInitialTupleArrayFormState } from "./utilsContract";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Badge } from "~~/components/ui/badge";
+import { Button } from "~~/components/ui/button";
 import { replacer } from "~~/utils/scaffold-eth/common";
 import { AbiParameterTuple } from "~~/utils/scaffold-eth/contract";
 
@@ -16,6 +19,7 @@ export const TupleArray = ({ abiTupleParameter, setParentForm, parentStateObject
   const [additionalInputs, setAdditionalInputs] = useState<Array<typeof abiTupleParameter.components>>([
     abiTupleParameter.components,
   ]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const depth = (abiTupleParameter.type.match(/\[\]/g) || []).length;
 
@@ -100,42 +104,48 @@ export const TupleArray = ({ abiTupleParameter, setParentForm, parentStateObject
 
   return (
     <div>
-      <div className="collapse collapse-arrow bg-base-200 pl-4 py-1.5 border-2 border-secondary">
-        <input type="checkbox" className="min-h-fit! peer" />
-        <div className="collapse-title after:top-3.5! p-0 min-h-fit! peer-checked:mb-1 text-primary-content/50">
+      <div className="bg-base-200 pl-4 py-1.5 border-2 border-secondary rounded-lg">
+        <button
+          type="button"
+          className="flex items-center justify-between w-full p-0 min-h-fit text-primary-content/50 hover:text-primary-content transition-colors"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <p className="m-0 text-[1rem]">{abiTupleParameter.internalType}</p>
-        </div>
-        <div className="ml-3 flex-col space-y-2 border-secondary/70 border-l-2 pl-4 collapse-content">
-          {additionalInputs.map((additionalInput, additionalIndex) => (
-            <div key={additionalIndex} className="space-y-1">
-              <span className="badge bg-base-300 badge-sm">
-                {depth > 1 ? `${additionalIndex}` : `tuple[${additionalIndex}]`}
-              </span>
-              <div className="space-y-4">
-                {additionalInput.map((param, index) => {
-                  const key = getFunctionInputKey(
-                    `${additionalIndex}_${abiTupleParameter.name || "tuple"}`,
-                    param,
-                    index,
-                  );
-                  return (
-                    <ContractInput setForm={setForm} form={form} key={key} stateObjectKey={key} paramType={param} />
-                  );
-                })}
+          <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+        {isOpen && (
+          <div className="ml-3 flex-col space-y-2 border-secondary/70 border-l-2 pl-4 mt-2 pb-2">
+            {additionalInputs.map((additionalInput, additionalIndex) => (
+              <div key={additionalIndex} className="space-y-1">
+                <Badge variant="secondary" className="text-xs">
+                  {depth > 1 ? `${additionalIndex}` : `tuple[${additionalIndex}]`}
+                </Badge>
+                <div className="space-y-4">
+                  {additionalInput.map((param, index) => {
+                    const key = getFunctionInputKey(
+                      `${additionalIndex}_${abiTupleParameter.name || "tuple"}`,
+                      param,
+                      index,
+                    );
+                    return (
+                      <ContractInput setForm={setForm} form={form} key={key} stateObjectKey={key} paramType={param} />
+                    );
+                  })}
+                </div>
               </div>
+            ))}
+            <div className="flex space-x-2">
+              <Button variant="secondary" size="sm" onClick={addInput}>
+                +
+              </Button>
+              {additionalInputs.length > 0 && (
+                <Button variant="secondary" size="sm" onClick={removeInput}>
+                  -
+                </Button>
+              )}
             </div>
-          ))}
-          <div className="flex space-x-2">
-            <button className="btn btn-sm btn-secondary" onClick={addInput}>
-              +
-            </button>
-            {additionalInputs.length > 0 && (
-              <button className="btn btn-sm btn-secondary" onClick={removeInput}>
-                -
-              </button>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

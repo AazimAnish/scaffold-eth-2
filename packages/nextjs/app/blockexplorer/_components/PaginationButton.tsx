@@ -1,4 +1,5 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { Button } from "~~/components/ui/button";
 
 type PaginationButtonProps = {
   currentPage: number;
@@ -12,28 +13,35 @@ export const PaginationButton = ({ currentPage, totalItems, setCurrentPage }: Pa
   const isPrevButtonDisabled = currentPage === 0;
   const isNextButtonDisabled = currentPage + 1 >= Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-  const prevButtonClass = isPrevButtonDisabled ? "btn-disabled cursor-default" : "btn-primary";
-  const nextButtonClass = isNextButtonDisabled ? "btn-disabled cursor-default" : "btn-primary";
-
   if (isNextButtonDisabled && isPrevButtonDisabled) return null;
 
   return (
-    <div className="mt-5 justify-end flex gap-3 mx-5">
-      <button
-        className={`btn btn-sm ${prevButtonClass}`}
+    <div className="flex items-center justify-center gap-4 mt-8">
+      <Button
+        variant="outline"
+        size="sm"
         disabled={isPrevButtonDisabled}
         onClick={() => setCurrentPage(currentPage - 1)}
+        className="gap-2"
       >
         <ArrowLeftIcon className="h-4 w-4" />
-      </button>
-      <span className="self-center text-primary-content font-medium">Page {currentPage + 1}</span>
-      <button
-        className={`btn btn-sm ${nextButtonClass}`}
+        Previous
+      </Button>
+
+      <span className="text-sm font-medium text-muted-foreground">
+        Page {currentPage + 1} of {Math.ceil(totalItems / ITEMS_PER_PAGE)}
+      </span>
+
+      <Button
+        variant="outline"
+        size="sm"
         disabled={isNextButtonDisabled}
         onClick={() => setCurrentPage(currentPage + 1)}
+        className="gap-2"
       >
+        Next
         <ArrowRightIcon className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   );
 };

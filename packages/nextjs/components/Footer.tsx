@@ -6,6 +6,7 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
 import { BuidlGuidlLogo } from "~~/components/assets/BuidlGuidlLogo";
 import { Faucet } from "~~/components/scaffold-eth";
+import { Button } from "~~/components/ui/button";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useGlobalState } from "~~/services/store/store";
 
@@ -18,63 +19,70 @@ export const Footer = () => {
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
   return (
-    <div className="min-h-0 py-5 px-1 mb-11 lg:mb-0">
-      <div>
-        <div className="fixed flex justify-between items-center w-full z-10 p-4 bottom-0 left-0 pointer-events-none">
-          <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
+    <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container-custom">
+        {/* Top section with actions */}
+        <div className="flex flex-col gap-4 py-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
             {nativeCurrencyPrice > 0 && (
-              <div>
-                <div className="btn btn-primary btn-sm font-normal gap-1 cursor-auto">
-                  <CurrencyDollarIcon className="h-4 w-4" />
-                  <span>{nativeCurrencyPrice.toFixed(2)}</span>
-                </div>
-              </div>
+              <Button variant="outline" size="sm" className="gap-2">
+                <CurrencyDollarIcon className="h-4 w-4" />
+                <span className="font-medium">{nativeCurrencyPrice.toFixed(2)}</span>
+              </Button>
             )}
             {isLocalNetwork && (
               <>
                 <Faucet />
-                <Link href="/blockexplorer" passHref className="btn btn-primary btn-sm font-normal gap-1">
-                  <MagnifyingGlassIcon className="h-4 w-4" />
-                  <span>Block Explorer</span>
-                </Link>
+                <Button asChild variant="outline" size="sm" className="gap-2">
+                  <Link href="/blockexplorer">
+                    <MagnifyingGlassIcon className="h-4 w-4" />
+                    <span>Block Explorer</span>
+                  </Link>
+                </Button>
               </>
             )}
           </div>
-          <SwitchTheme className={`pointer-events-auto ${isLocalNetwork ? "self-end md:self-auto" : ""}`} />
+          <SwitchTheme />
         </div>
-      </div>
-      <div className="w-full">
-        <ul className="menu menu-horizontal w-full">
-          <div className="flex justify-center items-center gap-2 text-sm w-full">
-            <div className="text-center">
-              <a href="https://github.com/scaffold-eth/se-2" target="_blank" rel="noreferrer" className="link">
-                Fork me
-              </a>
-            </div>
-            <span>·</span>
-            <div className="flex justify-center items-center gap-2">
-              <p className="m-0 text-center">
-                Built with <HeartIcon className="inline-block h-4 w-4" /> at
-              </p>
-              <a
-                className="flex justify-center items-center gap-1"
+
+        {/* Bottom section with links */}
+        <div className="border-t py-6">
+          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:flex-row md:justify-center md:gap-6">
+            <Link
+              href="https://github.com/scaffold-eth/se-2"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline transition-colors"
+            >
+              Fork me
+            </Link>
+            <span className="hidden md:inline">·</span>
+            <div className="flex items-center gap-2">
+              <span>Built with</span>
+              <HeartIcon className="h-4 w-4 text-red-500" />
+              <span>at</span>
+              <Link
                 href="https://buidlguidl.com/"
                 target="_blank"
                 rel="noreferrer"
+                className="flex items-center gap-1 text-primary hover:underline transition-colors"
               >
-                <BuidlGuidlLogo className="w-3 h-5 pb-1" />
-                <span className="link">BuidlGuidl</span>
-              </a>
+                <BuidlGuidlLogo className="h-4 w-5" />
+                <span>BuidlGuidl</span>
+              </Link>
             </div>
-            <span>·</span>
-            <div className="text-center">
-              <a href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA" target="_blank" rel="noreferrer" className="link">
-                Support
-              </a>
-            </div>
+            <span className="hidden md:inline">·</span>
+            <Link
+              href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline transition-colors"
+            >
+              Support
+            </Link>
           </div>
-        </ul>
+        </div>
       </div>
-    </div>
+    </footer>
   );
 };

@@ -5,6 +5,8 @@ import { createWalletClient, http, parseEther } from "viem";
 import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
+import { Button } from "~~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~~/components/ui/tooltip";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { useWatchBalance } from "~~/hooks/scaffold-eth/useWatchBalance";
 
@@ -22,9 +24,7 @@ const localWalletClient = createWalletClient({
  */
 export const FaucetButton = () => {
   const { address, chain: ConnectedChain } = useAccount();
-
   const { data: balance } = useWatchBalance({ address });
-
   const [loading, setLoading] = useState(false);
 
   const faucetTxn = useTransactor(localWalletClient);
@@ -38,9 +38,9 @@ export const FaucetButton = () => {
         to: address,
         value: parseEther(NUM_OF_ETH),
       });
-      setLoading(false);
     } catch (error) {
       console.error("⚡️ ~ file: FaucetButton.tsx:sendETH ~ error", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -53,21 +53,22 @@ export const FaucetButton = () => {
   const isBalanceZero = balance && balance.value === 0n;
 
   return (
-    <div
-      className={
-        !isBalanceZero
-          ? "ml-1"
-          : "ml-1 tooltip tooltip-bottom tooltip-primary tooltip-open font-bold before:left-auto before:transform-none before:content-[attr(data-tip)] before:-translate-x-2/5"
-      }
-      data-tip="Grab funds from faucet"
-    >
-      <button className="btn btn-secondary btn-sm px-2 rounded-full" onClick={sendETH} disabled={loading}>
-        {!loading ? (
-          <BanknotesIcon className="h-4 w-4" />
-        ) : (
-          <span className="loading loading-spinner loading-xs"></span>
-        )}
-      </button>
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" size="sm" onClick={sendETH} disabled={loading} className="gap-2">
+            {loading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+            ) : (
+              <BanknotesIcon className="h-4 w-4" />
+            )}
+            <span className="hidden sm:inline">{isBalanceZero ? "Get ETH" : "Faucet"}</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Get {NUM_OF_ETH} ETH from faucet</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

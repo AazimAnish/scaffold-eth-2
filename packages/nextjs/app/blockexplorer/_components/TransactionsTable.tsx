@@ -1,6 +1,7 @@
 import { TransactionHash } from "./TransactionHash";
 import { formatEther } from "viem";
 import { Address } from "~~/components/scaffold-eth";
+import { Badge } from "~~/components/ui/badge";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { TransactionWithFunction } from "~~/utils/scaffold-eth";
 import { TransactionsTableProps } from "~~/utils/scaffold-eth/";
@@ -9,18 +10,20 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
   const { targetNetwork } = useTargetNetwork();
 
   return (
-    <div className="flex justify-center px-4 md:px-0">
-      <div className="overflow-x-auto w-full shadow-2xl rounded-xl">
-        <table className="table text-xl bg-base-100 table-zebra w-full md:table-md table-sm">
+    <div className="w-full overflow-hidden rounded-lg border bg-card">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead>
-            <tr className="rounded-xl text-sm text-base-content">
-              <th className="bg-primary">Transaction Hash</th>
-              <th className="bg-primary">Function Called</th>
-              <th className="bg-primary">Block Number</th>
-              <th className="bg-primary">Time Mined</th>
-              <th className="bg-primary">From</th>
-              <th className="bg-primary">To</th>
-              <th className="bg-primary text-end">Value ({targetNetwork.nativeCurrency.symbol})</th>
+            <tr className="border-b bg-muted/50">
+              <th className="w-32 px-4 py-3 text-left text-sm font-medium">Transaction Hash</th>
+              <th className="w-40 px-4 py-3 text-left text-sm font-medium">Function Called</th>
+              <th className="w-24 px-4 py-3 text-left text-sm font-medium">Block Number</th>
+              <th className="w-32 px-4 py-3 text-left text-sm font-medium">Time Mined</th>
+              <th className="w-32 px-4 py-3 text-left text-sm font-medium">From</th>
+              <th className="w-40 px-4 py-3 text-left text-sm font-medium">To</th>
+              <th className="w-24 px-4 py-3 text-right text-sm font-medium">
+                Value ({targetNetwork.nativeCurrency.symbol})
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -31,33 +34,41 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
                 const functionCalled = tx.input.substring(0, 10);
 
                 return (
-                  <tr key={tx.hash} className="hover text-sm">
-                    <td className="w-1/12 md:py-4">
+                  <tr key={tx.hash} className="border-b hover:bg-muted/50 transition-colors">
+                    <td className="px-4 py-3 text-sm">
                       <TransactionHash hash={tx.hash} />
                     </td>
-                    <td className="w-2/12 md:py-4">
-                      {tx.functionName === "0x" ? "" : <span className="mr-1">{tx.functionName}</span>}
-                      {functionCalled !== "0x" && (
-                        <span className="badge badge-primary font-bold text-xs">{functionCalled}</span>
-                      )}
+                    <td className="px-4 py-3 text-sm">
+                      <div className="flex flex-col gap-1">
+                        {tx.functionName === "0x" ? "" : <span className="truncate text-xs">{tx.functionName}</span>}
+                        {functionCalled !== "0x" && (
+                          <Badge variant="secondary" className="text-xs w-fit">
+                            {functionCalled}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
-                    <td className="w-1/12 md:py-4">{block.number?.toString()}</td>
-                    <td className="w-2/12 md:py-4">{timeMined}</td>
-                    <td className="w-2/12 md:py-4">
+                    <td className="px-4 py-3 text-sm">{block.number?.toString()}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className="text-xs">{timeMined}</span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
                       <Address address={tx.from} size="sm" onlyEnsOrAddress />
                     </td>
-                    <td className="w-2/12 md:py-4">
+                    <td className="px-4 py-3 text-sm">
                       {!receipt?.contractAddress ? (
                         tx.to && <Address address={tx.to} size="sm" onlyEnsOrAddress />
                       ) : (
-                        <div className="relative">
+                        <div className="flex flex-col gap-1">
                           <Address address={receipt.contractAddress} size="sm" onlyEnsOrAddress />
-                          <small className="absolute top-4 left-4">(Contract Creation)</small>
+                          <span className="text-xs text-muted-foreground">(Contract Creation)</span>
                         </div>
                       )}
                     </td>
-                    <td className="text-right md:py-4">
-                      {formatEther(tx.value)} {targetNetwork.nativeCurrency.symbol}
+                    <td className="px-4 py-3 text-sm text-right">
+                      <span className="text-xs">
+                        {formatEther(tx.value)} {targetNetwork.nativeCurrency.symbol}
+                      </span>
                     </td>
                   </tr>
                 );

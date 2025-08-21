@@ -4,6 +4,8 @@ import { useEffect, useMemo } from "react";
 import { useSessionStorage } from "usehooks-ts";
 import { BarsArrowUpIcon } from "@heroicons/react/20/solid";
 import { ContractUI } from "~~/app/debug/_components/contract";
+import { Button } from "~~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~~/components/ui/tooltip";
 import { ContractName, GenericContract } from "~~/utils/scaffold-eth/contract";
 import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
 
@@ -31,43 +33,56 @@ export function DebugContracts() {
     }
   }, [contractNames, selectedContract, setSelectedContract]);
 
+  if (contractNames.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="text-center">
+          <h3 className="text-2xl font-semibold mb-4">No contracts found!</h3>
+          <p className="text-muted-foreground">Deploy a contract to start debugging and interacting with it.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-y-6 lg:gap-y-8 py-8 lg:py-12 justify-center items-center">
-      {contractNames.length === 0 ? (
-        <p className="text-3xl mt-14">No contracts found!</p>
-      ) : (
-        <>
-          {contractNames.length > 1 && (
-            <div className="flex flex-row gap-2 w-full max-w-7xl pb-1 px-6 lg:px-10 flex-wrap">
-              {contractNames.map(contractName => (
-                <button
-                  className={`btn btn-secondary btn-sm font-light hover:border-transparent ${
-                    contractName === selectedContract
-                      ? "bg-base-300 hover:bg-base-300 no-animation"
-                      : "bg-base-100 hover:bg-secondary"
-                  }`}
-                  key={contractName}
-                  onClick={() => setSelectedContract(contractName)}
-                >
-                  {contractName}
-                  {(contractsData[contractName] as GenericContract)?.external && (
-                    <span className="tooltip tooltip-top tooltip-accent" data-tip="External contract">
-                      <BarsArrowUpIcon className="h-4 w-4 cursor-pointer" />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-          {contractNames.map(contractName => (
-            <ContractUI
-              key={contractName}
-              contractName={contractName}
-              className={contractName === selectedContract ? "" : "hidden"}
-            />
-          ))}
-        </>
+    <div className="space-y-8">
+      {/* Contract Selection */}
+      {contractNames.length > 1 && (
+        <TooltipProvider>
+          <div className="flex flex-wrap gap-2">
+            {contractNames.map(contractName => (
+              <Button
+                key={contractName}
+                variant={contractName === selectedContract ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedContract(contractName)}
+                className="font-medium"
+              >
+                {contractName}
+                {(contractsData[contractName] as GenericContract)?.external && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <BarsArrowUpIcon className="h-4 w-4 ml-2" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>External contract</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </Button>
+            ))}
+          </div>
+        </TooltipProvider>
       )}
+
+      {/* Contract UI */}
+      <div className="space-y-6">
+        {contractNames.map(contractName => (
+          <div key={contractName} className={contractName === selectedContract ? "block" : "hidden"}>
+            <ContractUI contractName={contractName} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

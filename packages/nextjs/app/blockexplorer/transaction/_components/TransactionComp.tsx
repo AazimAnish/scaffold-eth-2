@@ -6,6 +6,10 @@ import { Hash, Transaction, TransactionReceipt, formatEther, formatUnits } from 
 import { hardhat } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
+import { Badge } from "~~/components/ui/badge";
+import { Button } from "~~/components/ui/button";
+import { Table, TableBody, TableCell, TableRow } from "~~/components/ui/table";
+import { Textarea } from "~~/components/ui/textarea";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { decodeTransactionData, getFunctionDetails } from "~~/utils/scaffold-eth";
 import { replacer } from "~~/utils/scaffold-eth/common";
@@ -39,39 +43,39 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
 
   return (
     <div className="container mx-auto mt-10 mb-20 px-10 md:px-0">
-      <button className="btn btn-sm btn-primary" onClick={() => router.back()}>
+      <Button variant="default" size="sm" onClick={() => router.back()}>
         Back
-      </button>
+      </Button>
       {transaction ? (
         <div className="overflow-x-auto">
           <h2 className="text-3xl font-bold mb-4 text-center text-primary-content">Transaction Details</h2>{" "}
-          <table className="table rounded-lg bg-base-100 w-full shadow-lg md:table-lg table-md">
-            <tbody>
-              <tr>
-                <td>
+          <Table className="rounded-lg bg-base-100 w-full shadow-lg">
+            <TableBody>
+              <TableRow>
+                <TableCell>
                   <strong>Transaction Hash:</strong>
-                </td>
-                <td>{transaction.hash}</td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+                <TableCell>{transaction.hash}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Block Number:</strong>
-                </td>
-                <td>{Number(transaction.blockNumber)}</td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+                <TableCell>{Number(transaction.blockNumber)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>From:</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <Address address={transaction.from} format="long" onlyEnsOrAddress />
-                </td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>To:</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   {!receipt?.contractAddress ? (
                     transaction.to && <Address address={transaction.to} format="long" onlyEnsOrAddress />
                   ) : (
@@ -80,56 +84,54 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                       <Address address={receipt.contractAddress} format="long" onlyEnsOrAddress />
                     </span>
                   )}
-                </td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Value:</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   {formatEther(transaction.value)} {targetNetwork.nativeCurrency.symbol}
-                </td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Function called:</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <div className="w-full md:max-w-[600px] lg:max-w-[800px] overflow-x-auto whitespace-nowrap">
                     {functionCalled === "0x" ? (
                       "This transaction did not call any function."
                     ) : (
                       <>
                         <span className="mr-2">{getFunctionDetails(transaction)}</span>
-                        <span className="badge badge-primary font-bold">{functionCalled}</span>
+                        <Badge variant="default" className="font-bold">
+                          {functionCalled}
+                        </Badge>
                       </>
                     )}
                   </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Gas Price:</strong>
-                </td>
-                <td>{formatUnits(transaction.gasPrice || 0n, 9)} Gwei</td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+                <TableCell>{formatUnits(transaction.gasPrice || 0n, 9)} Gwei</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Data:</strong>
-                </td>
-                <td className="form-control">
-                  <textarea
-                    readOnly
-                    value={transaction.input}
-                    className="p-0 w-full textarea-primary bg-inherit h-[150px]"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
+                </TableCell>
+                <TableCell>
+                  <Textarea readOnly value={transaction.input} className="w-full h-[150px] bg-inherit" />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
                   <strong>Logs:</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <ul>
                     {receipt?.logs?.map((log, i) => (
                       <li key={i}>
@@ -137,10 +139,10 @@ const TransactionComp = ({ txHash }: { txHash: Hash }) => {
                       </li>
                     ))}
                   </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <p className="text-2xl text-base-content">Loading...</p>

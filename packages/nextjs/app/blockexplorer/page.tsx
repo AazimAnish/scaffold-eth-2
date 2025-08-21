@@ -60,7 +60,7 @@ const BlockExplorer: NextPage = () => {
         <>
           <p className="font-bold mt-0 mb-1">Cannot connect to local provider</p>
           <p className="m-0">
-            - Did you forget to run <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
+            - Did you forget to run <code className="italic bg-base-300 text-base font-bold">bun run chain</code> ?
           </p>
           <p className="mt-1 break-normal">
             - Or you can change <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> in{" "}
@@ -72,10 +72,27 @@ const BlockExplorer: NextPage = () => {
   }, [hasError]);
 
   return (
-    <div className="container mx-auto my-10">
-      <SearchBar />
-      <TransactionsTable blocks={blocks} transactionReceipts={transactionReceipts} />
-      <PaginationButton currentPage={currentPage} totalItems={Number(totalBlocks)} setCurrentPage={setCurrentPage} />
+    <div className="section-padding">
+      <div className="container-custom">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8 text-center">
+            <h1 className="mb-4">Block Explorer</h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Explore your local blockchain transactions and blocks in real-time
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            <SearchBar />
+            <TransactionsTable blocks={blocks} transactionReceipts={transactionReceipts} />
+            <PaginationButton
+              currentPage={currentPage}
+              totalItems={Number(totalBlocks)}
+              setCurrentPage={setCurrentPage}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

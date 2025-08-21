@@ -1,13 +1,8 @@
 # dependencies
 node_modules
 
-# yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# bun
+bun.lockb
 
 # eslint
 .eslintcache

@@ -8,7 +8,9 @@ import { PaginationButton } from "./PaginationButton";
 import { TransactionsTable } from "./TransactionsTable";
 import { Address, createPublicClient, http } from "viem";
 import { hardhat } from "viem/chains";
+import { Button } from "~~/components/ui/button";
 import { useFetchBlocks } from "~~/hooks/scaffold-eth";
+import { cn } from "~~/lib/utils";
 
 type AddressCodeTabProps = {
   bytecode: string;
@@ -48,42 +50,36 @@ export const ContractTabs = ({ address, contractData }: PageProps) => {
     }),
   );
 
+  const tabs = [
+    { id: "transactions", label: "Transactions" },
+    { id: "code", label: "Code" },
+    { id: "storage", label: "Storage" },
+    { id: "logs", label: "Logs" },
+  ];
+
   return (
-    <>
+    <div className="space-y-6">
       {isContract && (
-        <div role="tablist" className="tabs tabs-lift">
-          <button
-            role="tab"
-            className={`tab ${activeTab === "transactions" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("transactions")}
-          >
-            Transactions
-          </button>
-          <button
-            role="tab"
-            className={`tab ${activeTab === "code" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("code")}
-          >
-            Code
-          </button>
-          <button
-            role="tab"
-            className={`tab  ${activeTab === "storage" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("storage")}
-          >
-            Storage
-          </button>
-          <button
-            role="tab"
-            className={`tab  ${activeTab === "logs" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("logs")}
-          >
-            Logs
-          </button>
+        <div className="flex space-x-1 border-b">
+          {tabs.map(tab => (
+            <Button
+              key={tab.id}
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "rounded-none border-b-2 border-transparent px-4 py-2",
+                activeTab === tab.id && "border-primary bg-primary/5",
+              )}
+            >
+              {tab.label}
+            </Button>
+          ))}
         </div>
       )}
+
       {activeTab === "transactions" && (
-        <div className="pt-4">
+        <div className="space-y-6">
           <TransactionsTable blocks={filteredBlocks} transactionReceipts={transactionReceipts} />
           <PaginationButton
             currentPage={currentPage}
@@ -97,6 +93,6 @@ export const ContractTabs = ({ address, contractData }: PageProps) => {
       )}
       {activeTab === "storage" && <AddressStorageTab address={address} />}
       {activeTab === "logs" && <AddressLogsTab address={address} />}
-    </>
+    </div>
   );
 };

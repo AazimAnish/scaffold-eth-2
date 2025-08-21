@@ -29,7 +29,7 @@ async function main() {
   const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
 
   if (!encryptedKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn generate` or `yarn account:import` first");
+    console.log("🚫️ You don't have a deployer account. Run `bun run generate` or `bun run account:import` first");
     return;
   }
 

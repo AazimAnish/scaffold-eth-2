@@ -6,6 +6,8 @@ import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
 import { Address, AddressInput, Balance, EtherInput } from "~~/components/scaffold-eth";
+import { Button } from "~~/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~~/components/ui/dialog";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -22,7 +24,7 @@ const localWalletClient = createWalletClient({
  */
 export const Faucet = () => {
   const [loading, setLoading] = useState(false);
-  const [inputAddress, setInputAddress] = useState<AddressType>();
+  const [inputAddress, setInputAddress] = useState<string>("");
   const [faucetAddress, setFaucetAddress] = useState<AddressType>();
   const [sendValue, setSendValue] = useState("");
 
@@ -40,7 +42,7 @@ export const Faucet = () => {
           <>
             <p className="font-bold mt-0 mb-1">Cannot connect to local provider</p>
             <p className="m-0">
-              - Did you forget to run <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
+              - Did you forget to run <code className="italic bg-base-300 text-base font-bold">bun run chain</code> ?
             </p>
             <p className="mt-1 break-normal">
               - Or you can change <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> in{" "}
@@ -55,18 +57,18 @@ export const Faucet = () => {
   }, []);
 
   const sendETH = async () => {
-    if (!faucetAddress || !inputAddress) {
+    if (!faucetAddress || !inputAddress || !sendValue) {
       return;
     }
     try {
       setLoading(true);
       await faucetTxn({
-        to: inputAddress,
+        to: inputAddress as AddressType,
         value: parseEther(sendValue as `${number}`),
         account: faucetAddress,
       });
       setLoading(false);
-      setInputAddress(undefined);
+      setInputAddress("");
       setSendValue("");
     } catch (error) {
       console.error("⚡️ ~ file: Faucet.tsx:sendETH ~ error", error);
@@ -80,50 +82,57 @@ export const Faucet = () => {
   }
 
   return (
-    <div>
-      <label htmlFor="faucet-modal" className="btn btn-primary btn-sm font-normal gap-1">
-        <BanknotesIcon className="h-4 w-4" />
-        <span>Faucet</span>
-      </label>
-      <input type="checkbox" id="faucet-modal" className="modal-toggle" />
-      <label htmlFor="faucet-modal" className="modal cursor-pointer">
-        <label className="modal-box relative">
-          {/* dummy input to capture event onclick on modal box */}
-          <input className="h-0 w-0 absolute top-0 left-0" />
-          <h3 className="text-xl font-bold mb-3">Local Faucet</h3>
-          <label htmlFor="faucet-modal" className="btn btn-ghost btn-sm btn-circle absolute right-3 top-3">
-            ✕
-          </label>
-          <div className="space-y-3">
-            <div className="flex space-x-4">
-              <div>
-                <span className="text-sm font-bold">From:</span>
-                <Address address={faucetAddress} onlyEnsOrAddress />
-              </div>
-              <div>
-                <span className="text-sm font-bold pl-3">Available:</span>
-                <Balance address={faucetAddress} />
-              </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <BanknotesIcon className="h-4 w-4" />
+          <span>Faucet</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Local Faucet</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          {/* Faucet Info */}
+          <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">From:</span>
+              <Address address={faucetAddress} onlyEnsOrAddress />
             </div>
-            <div className="flex flex-col space-y-3">
-              <AddressInput
-                placeholder="Destination Address"
-                value={inputAddress ?? ""}
-                onChange={value => setInputAddress(value as AddressType)}
-              />
-              <EtherInput placeholder="Amount to send" value={sendValue} onChange={value => setSendValue(value)} />
-              <button className="h-10 btn btn-primary btn-sm px-2 rounded-full" onClick={sendETH} disabled={loading}>
-                {!loading ? (
-                  <BanknotesIcon className="h-6 w-6" />
-                ) : (
-                  <span className="loading loading-spinner loading-sm"></span>
-                )}
-                <span>Send</span>
-              </button>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Available:</span>
+              <Balance address={faucetAddress} />
             </div>
           </div>
-        </label>
-      </label>
-    </div>
+
+          {/* Input Fields */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Destination Address</label>
+              <AddressInput
+                placeholder="Enter destination address"
+                value={inputAddress}
+                onChange={value => setInputAddress(value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Amount to Send</label>
+              <EtherInput placeholder="Enter amount" value={sendValue} onChange={value => setSendValue(value)} />
+            </div>
+
+            <Button onClick={sendETH} disabled={loading || !inputAddress || !sendValue} className="w-full gap-2">
+              {loading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <BanknotesIcon className="h-4 w-4" />
+              )}
+              <span>{loading ? "Sending..." : "Send ETH"}</span>
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

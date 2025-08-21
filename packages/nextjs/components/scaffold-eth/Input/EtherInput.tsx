@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
 import { CommonInputProps, InputBase, SIGNED_NUMBER_REGEX } from "~~/components/scaffold-eth";
+import { Button } from "~~/components/ui/button";
 import { useDisplayUsdMode } from "~~/hooks/scaffold-eth/useDisplayUsdMode";
 import { useGlobalState } from "~~/services/store/store";
 
@@ -103,24 +104,22 @@ export const EtherInput = ({
       placeholder={placeholder}
       onChange={handleChangeNumber}
       disabled={disabled}
-      prefix={<span className="pl-4 -mr-2 text-accent self-center">{displayUsdMode ? "$" : "Ξ"}</span>}
+      prefix={
+        <span className="pl-3 text-muted-foreground self-center text-sm font-medium">{displayUsdMode ? "$" : "Ξ"}</span>
+      }
       suffix={
-        <div
-          className={`${
-            nativeCurrencyPrice > 0
-              ? ""
-              : "tooltip tooltip-secondary before:content-[attr(data-tip)] before:right-[-10px] before:left-auto before:transform-none"
-          }`}
-          data-tip={isNativeCurrencyPriceFetching ? "Fetching price" : "Unable to fetch price"}
-        >
-          <button
-            className="btn btn-primary h-[2.2rem] min-h-[2.2rem]"
+        <div className="pr-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-accent"
             onClick={toggleDisplayUsdMode}
             disabled={!displayUsdMode && !nativeCurrencyPrice}
             type="button"
+            title={isNativeCurrencyPriceFetching ? "Fetching price" : "Toggle USD/ETH"}
           >
-            <ArrowsRightLeftIcon className="h-3 w-3 cursor-pointer" aria-hidden="true" />
-          </button>
+            <ArrowsRightLeftIcon className="h-4 w-4" />
+          </Button>
         </div>
       }
     />

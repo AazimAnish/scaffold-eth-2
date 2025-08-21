@@ -13,6 +13,7 @@ import {
   getParsedContractFunctionArgs,
   transformAbiFunction,
 } from "~~/app/debug/_components/contract";
+import { Button } from "~~/components/ui/button";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
@@ -70,32 +71,34 @@ export const ReadOnlyFunctionForm = ({
   });
 
   return (
-    <div className="flex flex-col gap-3 py-5 first:pt-0 last:pb-1">
-      <p className="font-medium my-0 break-words">
+    <div className="space-y-4 p-6 border rounded-lg">
+      <h4 className="font-semibold text-lg break-words">
         {abiFunction.name}
         <InheritanceTooltip inheritedFrom={inheritedFrom} />
-      </p>
+      </h4>
       {inputElements}
-      <div className="flex flex-col md:flex-row justify-between gap-2 flex-wrap">
-        <div className="grow w-full md:max-w-[80%]">
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+        <div className="flex-1">
           {result !== null && result !== undefined && (
-            <div className="bg-secondary rounded-3xl text-sm px-4 py-1.5 break-words overflow-auto">
-              <p className="font-bold m-0 mb-1">Result:</p>
-              <pre className="whitespace-pre-wrap break-words">{displayTxResult(result, "sm")}</pre>
+            <div className="bg-muted rounded-lg p-4 text-sm">
+              <p className="font-semibold mb-2">Result:</p>
+              <pre className="whitespace-pre-wrap break-words text-sm">{displayTxResult(result, "sm")}</pre>
             </div>
           )}
         </div>
-        <button
-          className="btn btn-secondary btn-sm self-end md:self-start"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={async () => {
             const { data } = await refetch();
             setResult(data);
           }}
           disabled={isFetching}
+          className="gap-2 self-end md:self-start"
         >
-          {isFetching && <span className="loading loading-spinner loading-xs"></span>}
+          {isFetching && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />}
           Read 📡
-        </button>
+        </Button>
       </div>
     </div>
   );

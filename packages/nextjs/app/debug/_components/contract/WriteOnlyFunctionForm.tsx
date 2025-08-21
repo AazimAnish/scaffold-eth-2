@@ -14,6 +14,7 @@ import {
   transformAbiFunction,
 } from "~~/app/debug/_components/contract";
 import { IntegerInput } from "~~/components/scaffold-eth";
+import { Button } from "~~/components/ui/button";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { AllowedChainIds } from "~~/utils/scaffold-eth";
@@ -97,18 +98,18 @@ export const WriteOnlyFunctionForm = ({
   const zeroInputs = inputs.length === 0 && abiFunction.stateMutability !== "payable";
 
   return (
-    <div className="py-5 space-y-3 first:pt-0 last:pb-1">
-      <div className={`flex gap-3 ${zeroInputs ? "flex-row justify-between items-center" : "flex-col"}`}>
-        <p className="font-medium my-0 break-words">
+    <div className="space-y-4 p-6 border rounded-lg">
+      <div className={`flex gap-4 ${zeroInputs ? "flex-row justify-between items-center" : "flex-col"}`}>
+        <h4 className="font-semibold text-lg break-words">
           {abiFunction.name}
           <InheritanceTooltip inheritedFrom={inheritedFrom} />
-        </p>
+        </h4>
         {inputs}
         {abiFunction.stateMutability === "payable" ? (
-          <div className="flex flex-col gap-1.5 w-full">
-            <div className="flex items-center ml-2">
-              <span className="text-xs font-medium mr-2 leading-none">payable value</span>
-              <span className="block text-xs font-extralight leading-none">wei</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Payable Value</span>
+              <span className="text-xs text-muted-foreground">(wei)</span>
             </div>
             <IntegerInput
               value={txValue}
@@ -120,26 +121,24 @@ export const WriteOnlyFunctionForm = ({
             />
           </div>
         ) : null}
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-4">
           {!zeroInputs && (
-            <div className="grow basis-0">{displayedTxResult ? <TxReceipt txResult={displayedTxResult} /> : null}</div>
+            <div className="flex-1">{displayedTxResult ? <TxReceipt txResult={displayedTxResult} /> : null}</div>
           )}
-          <div
-            className={`flex ${
-              writeDisabled &&
-              "tooltip tooltip-bottom tooltip-secondary before:content-[attr(data-tip)] before:-translate-x-1/3 before:left-auto before:transform-none"
-            }`}
-            data-tip={`${writeDisabled && "Wallet not connected or in the wrong network"}`}
+          <Button
+            variant="default"
+            size="sm"
+            disabled={writeDisabled || isPending}
+            onClick={handleWrite}
+            className="gap-2"
           >
-            <button className="btn btn-secondary btn-sm" disabled={writeDisabled || isPending} onClick={handleWrite}>
-              {isPending && <span className="loading loading-spinner loading-xs"></span>}
-              Send 💸
-            </button>
-          </div>
+            {isPending && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />}
+            Send 💸
+          </Button>
         </div>
       </div>
       {zeroInputs && txResult ? (
-        <div className="grow basis-0">
+        <div className="flex-1">
           <TxReceipt txResult={txResult} />
         </div>
       ) : null}

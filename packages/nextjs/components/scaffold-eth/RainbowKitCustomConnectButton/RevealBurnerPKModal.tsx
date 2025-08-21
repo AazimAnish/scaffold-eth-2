@@ -1,6 +1,8 @@
-import { useRef } from "react";
+import { useState } from "react";
 import { rainbowkitBurnerWallet } from "burner-connector";
-import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, ShieldExclamationIcon } from "@heroicons/react/24/outline";
+import { Button } from "~~/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~~/components/ui/dialog";
 import { useCopyToClipboard } from "~~/hooks/scaffold-eth";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
@@ -8,7 +10,7 @@ const BURNER_WALLET_PK_KEY = "burnerWallet.pk";
 
 export const RevealBurnerPKModal = () => {
   const { copyToClipboard, isCopiedToClipboard } = useCopyToClipboard();
-  const modalCheckboxRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleCopyPK = async () => {
     try {
@@ -20,40 +22,47 @@ export const RevealBurnerPKModal = () => {
     } catch (e) {
       const parsedError = getParsedError(e);
       notification.error(parsedError);
-      if (modalCheckboxRef.current) modalCheckboxRef.current.checked = false;
     }
   };
 
   return (
-    <>
-      <div>
-        <input type="checkbox" id="reveal-burner-pk-modal" className="modal-toggle" ref={modalCheckboxRef} />
-        <label htmlFor="reveal-burner-pk-modal" className="modal cursor-pointer">
-          <label className="modal-box relative">
-            {/* dummy input to capture event onclick on modal box */}
-            <input className="h-0 w-0 absolute top-0 left-0" />
-            <label htmlFor="reveal-burner-pk-modal" className="btn btn-ghost btn-sm btn-circle absolute right-3 top-3">
-              ✕
-            </label>
-            <div>
-              <p className="text-lg font-semibold m-0 p-0">Copy Burner Wallet Private Key</p>
-              <div role="alert" className="alert alert-warning mt-4">
-                <ShieldExclamationIcon className="h-6 w-6" />
-                <span className="font-semibold">
-                  Burner wallets are intended for local development only and are not safe for storing real funds.
-                </span>
-              </div>
-              <p>
-                Your Private Key provides <strong>full access</strong> to your entire wallet and funds. This is
-                currently stored <strong>temporarily</strong> in your browser.
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <button
+        className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent cursor-pointer transition-colors w-full text-left text-destructive"
+        onClick={() => setIsOpen(true)}
+      >
+        <EyeIcon className="h-4 w-4" />
+        <span>Reveal Private Key</span>
+      </button>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldExclamationIcon className="h-5 w-5 text-destructive" />
+            Copy Burner Wallet Private Key
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 rounded-lg border border-destructive/50 bg-destructive/10">
+            <ShieldExclamationIcon className="h-5 w-5 text-destructive mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold text-destructive mb-1">Warning</p>
+              <p className="text-destructive/90">
+                Burner wallets are intended for local development only and are not safe for storing real funds.
               </p>
-              <button className="btn btn-outline btn-error" onClick={handleCopyPK} disabled={isCopiedToClipboard}>
-                Copy Private Key To Clipboard
-              </button>
             </div>
-          </label>
-        </label>
-      </div>
-    </>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            Your Private Key provides <strong>full access</strong> to your entire wallet and funds. This is currently
+            stored <strong>temporarily</strong> in your browser.
+          </p>
+
+          <Button variant="outline" onClick={handleCopyPK} disabled={isCopiedToClipboard} className="w-full">
+            {isCopiedToClipboard ? "Copied!" : "Copy Private Key To Clipboard"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
